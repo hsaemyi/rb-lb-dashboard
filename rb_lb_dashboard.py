@@ -4,7 +4,7 @@ import gspread
 import plotly.graph_objects as go
 from google.oauth2.service_account import Credentials
 
-st.set_page_config(page_title="Rebalancing Dashboard", layout="wide")
+st.set_page_config(page_title="Operations Performance Dashboard", layout="wide")
 
 SPREADSHEET_ID = "1_0c46TezCR0uFGQ-E9V2ntHO_d5P-faWy-mdJPNdueY"
 RDV_THRESHOLD = 95.0
@@ -34,8 +34,8 @@ hr { border-color: #ececf1 !important; margin: 22px 0 !important; }
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="app-header">Rebalancing Dashboard</div>', unsafe_allow_html=True)
-st.markdown('<div class="app-sub">도시별 RB/LB 지표 추이와 인센티브 판단 결과</div>', unsafe_allow_html=True)
+st.markdown('<div class="app-header">Operations Performance Dashboard</div>', unsafe_allow_html=True)
+st.markdown('<div class="app-sub">Performance Trends, Operational Metrics & Thresholds</div>', unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════
