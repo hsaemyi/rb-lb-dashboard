@@ -196,6 +196,7 @@ def chart_card(col, title, city_series, nat_series, week_labels):
                     mode="lines+markers",
                     line=dict(color="#3562E0", width=3),
                     marker=dict(size=6, color="#3562E0"),
+                    hovertemplate="%{y}<extra></extra>",
                 ))
                 if any(v is not None for v in nat_series):
                     fig.add_trace(go.Scatter(
@@ -203,6 +204,7 @@ def chart_card(col, title, city_series, nat_series, week_labels):
                         mode="lines+markers",
                         line=dict(color="#c7c7d1", width=2, dash="dot"),
                         marker=dict(size=5, color="#c7c7d1"),
+                        hovertemplate="%{y}<extra></extra>",
                     ))
                 fig.update_layout(
                     height=170,
@@ -284,6 +286,11 @@ chart_card(cols3[2], "TPVD", s, n, WEEKS)
 # ══════════════════════════════════════════════════════
 st.markdown('<div class="section-label">LB / RB Threshold</div>', unsafe_allow_html=True)
 
+PARAM_CITY_ALIAS = {"Songpa": "Seoul", "Mapo": "Seoul"}
+threshold_city = PARAM_CITY_ALIAS.get(city, city)
+if threshold_city != city:
+    st.caption(f"※ Threshold는 {city}가 아닌 {threshold_city} 기준으로 관리됩니다")
+
 threshold_rows = []
 for label, key_col, key_label in [
     ("Marshal Normal LB", "Threshold", "Threshold"),
@@ -296,9 +303,9 @@ for label, key_col, key_label in [
     ("Ranger Inactive RB", "Inactive Days", "Inactive Days"),
 ]:
     block_key = label.replace(" ", "_", 1)  # "Marshal Normal LB" -> "Marshal_Normal LB"
-    val = get_param(param_blocks, block_key, city, key_col)
-    priority = get_param(param_blocks, block_key, city, "Task Priority")
-    reward = get_param(param_blocks, block_key, city, "Task Reward")
+    val = get_param(param_blocks, block_key, threshold_city, key_col)
+    priority = get_param(param_blocks, block_key, threshold_city, "Task Priority")
+    reward = get_param(param_blocks, block_key, threshold_city, "Task Reward")
     threshold_rows.append({
         "Type": label,
         "Metric": key_label,
@@ -332,7 +339,7 @@ rb_dv_ranger_nat = get_total(kr_rb_blocks, "RB/DV_RANGER", week)
 effect_ranger = get_val(kr_rb_blocks, "24H Trips / RB_Ranger", city, week)
 effect_ranger_nat = get_total(kr_rb_blocks, "24H Trips / RB_Ranger", week)
 rdv_val = get_rdv_series(rdv_df, city, [week])[0]
-ranger_inactive = get_param(param_blocks, "Ranger_Inactive RB", city, "Inactive Days")
+ranger_inactive = get_param(param_blocks, "Ranger_Inactive RB", PARAM_CITY_ALIAS.get(city, city), "Inactive Days")
 
 st.markdown('<div class="section-label">판단 흐름</div>', unsafe_allow_html=True)
 
