@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import gspread
+import plotly.graph_objects as go
 from google.oauth2.service_account import Credentials
 
 st.set_page_config(page_title="Rebalancing Dashboard", layout="wide")
@@ -188,11 +189,37 @@ def chart_card(col, title, city_series, nat_series, week_labels):
                 sub += f"  ·  전국: {nat_latest:.2f}"
             st.markdown(f'<div class="card-nums">{sub}</div>', unsafe_allow_html=True)
             if any(v is not None for v in city_series):
-                chart_df = pd.DataFrame({
-                    city: city_series,
-                    "전국": nat_series,
-                }, index=week_labels)
-                st.line_chart(chart_df, height=140)
+                fig = go.Figure()
+                fig.add_trace(go.Scatter(
+                    x=week_labels, y=city_series, name=city,
+                    mode="lines+markers",
+                    line=dict(color="#3562E0", width=3),
+                    marker=dict(size=6, color="#3562E0"),
+                ))
+                if any(v is not None for v in nat_series):
+                    fig.add_trace(go.Scatter(
+                        x=week_labels, y=nat_series, name="전국",
+                        mode="lines+markers",
+                        line=dict(color="#c7c7d1", width=2, dash="dot"),
+                        marker=dict(size=5, color="#c7c7d1"),
+                    ))
+                fig.update_layout(
+                    height=170,
+                    margin=dict(l=0, r=0, t=4, b=0),
+                    showlegend=True,
+                    legend=dict(orientation="h", yanchor="bottom", y=1.0, x=0, font=dict(size=10)),
+                    plot_bgcolor="white", paper_bgcolor="white",
+                    xaxis=dict(showgrid=False, tickfont=dict(size=10)),
+                    yaxis=dict(showgrid=True, gridcolor="#f2f2f5", tickfont=dict(size=10)),
+                    font=dict(family="Inter, sans-serif"),
+                )
+                # y축 자동 확대: 값 차이가 시각적으로 잘 보이도록 여백만 살짝 줌
+                all_vals = [v for v in city_series + nat_series if v is not None]
+                if all_vals:
+                    lo, hi = min(all_vals), max(all_vals)
+                    pad = (hi - lo) * 0.25 if hi != lo else max(abs(hi) * 0.1, 0.5)
+                    fig.update_yaxes(range=[lo - pad, hi + pad])
+                st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
             else:
                 st.caption("데이터 없음")
 
@@ -249,6 +276,47 @@ chart_card(cols3[1], "RDV", s, [RDV_THRESHOLD] * len(WEEKS), WEEKS)
 s = get_series(kr_rb_blocks, "TPVD", city, WEEKS)
 n = get_series(kr_rb_blocks, "TPVD", "Total", WEEKS)
 chart_card(cols3[2], "TPVD", s, n, WEEKS)
+
+
+# ══════════════════════════════════════════════════════
+# LB / RB Threshold
+# ══════════════════════════════════════════════════════
+st.markdown('<div class="section-label">LB / RB Threshold</div>', unsafe_allow_html=True)
+
+threshold_rows = []
+for label, key_col, key_label in [
+    ("Marshal Normal LB", "Threshold", "Threshold"),
+    ("Marshal Super LB", "Threshold", "Threshold"),
+    ("Ranger Normal LB", "Threshold", "Threshold"),
+    ("Ranger Super LB", "Threshold", "Threshold"),
+    ("Marshal Regular RB", "RB / Trip", "RB/Trip"),
+    ("Ranger Regular RB", "RB / Trip", "RB/Trip"),
+    ("Marshal Inactive RB", "Inactive Days", "Inactive Days"),
+    ("Ranger Inactive RB", "Inactive Days", "Inactive Days"),
+]:
+    block_key = label.replace(" ", "_", 1)  # "Marshal Normal LB" -> "Marshal_Normal LB"
+    val = get_param(param_blocks, block_key, city, key_col)
+    priority = get_param(param_blocks, block_key, city, "Task Priority")
+    reward = get_param(param_blocks, block_key, city, "Task Reward")
+    threshold_rows.append({
+        "Type": label,
+        "Metric": key_label,
+        "Value": val if val else "-",
+        "Task Priority": priority if priority else "-",
+        "Task Reward": reward if reward else "-",
+    })
+
+th_cols = st.columns(2)
+lb_rows = [r for r in threshold_rows if "LB" in r["Type"]]
+rb_rows = [r for r in threshold_rows if "RB" in r["Type"]]
+with th_cols[0]:
+    with st.container(border=True):
+        st.markdown('<div class="card-title">LB Threshold</div>', unsafe_allow_html=True)
+        st.dataframe(pd.DataFrame(lb_rows), hide_index=True, use_container_width=True)
+with th_cols[1]:
+    with st.container(border=True):
+        st.markdown('<div class="card-title">RB Threshold</div>', unsafe_allow_html=True)
+        st.dataframe(pd.DataFrame(rb_rows), hide_index=True, use_container_width=True)
 
 
 # ══════════════════════════════════════════════════════
