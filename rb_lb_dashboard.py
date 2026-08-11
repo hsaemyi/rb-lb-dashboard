@@ -134,7 +134,8 @@ def get_rdv_series(rdv_df, city, week_cols):
     row = rdv_df[rdv_df["City / Geo"].astype(str).str.strip() == city]
     if row.empty:
         return [None] * len(week_cols)
-    return [clean_num(row.iloc[0][w]) if w in rdv_df.columns else None for w in week_cols]
+    rdv_week_cols = [w.replace("WK", "Week ") for w in week_cols]
+    return [clean_num(row.iloc[0][w]) if w in rdv_df.columns else None for w in rdv_week_cols]
 
 
 def get_val(blocks, metric_name, city, week_col):
