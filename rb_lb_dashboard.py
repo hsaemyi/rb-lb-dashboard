@@ -15,20 +15,48 @@ GAP_THRESHOLD = 2.0    # creation vs 총수행량 갭 기준(%p)
 
 st.markdown("""
 <style>
-.metric-card { background:#f8f9fa; border-radius:10px; padding:12px 16px; border:1px solid #e0e0e0; margin-bottom:8px; }
-.label { font-size:12px; color:#666; margin-bottom:4px; }
-.value-main { font-size:20px; font-weight:600; color:#1a1a2e; }
-.value-sub { font-size:12px; color:#888; margin-top:2px; }
-.step-box { background:#f5f5f5; border-left:4px solid #1F3864; padding:10px 16px; border-radius:6px; margin-bottom:10px; font-size:14px; }
-.action-green { background:#e8f5e9; border:1px solid #81c784; border-radius:8px; padding:12px 16px; margin-bottom:6px; font-weight:600; color:#1D9E75; }
-.action-amber { background:#fff8e1; border:1px solid #ffe082; border-radius:8px; padding:12px 16px; margin-bottom:6px; font-weight:600; color:#E07B00; }
-.action-red   { background:#ffebee; border:1px solid #e57373; border-radius:8px; padding:12px 16px; margin-bottom:6px; font-weight:600; color:#E24B4A; }
-.action-gray  { background:#f5f5f5; border:1px solid #ccc; border-radius:8px; padding:12px 16px; margin-bottom:6px; font-weight:600; color:#666; }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+html, body, [class*="css"] { font-family: 'Inter', -apple-system, sans-serif; }
+
+.block-container { padding-top: 2.5rem; max-width: 1180px; }
+
+.app-header { font-size: 22px; font-weight: 700; color: #14141f; letter-spacing: -0.3px; margin-bottom: 2px; }
+.app-sub { font-size: 13px; color: #8b8b96; margin-bottom: 28px; }
+
+.section-label { font-size: 11px; font-weight: 600; color: #a0a0ab; text-transform: uppercase; letter-spacing: 0.6px; margin: 28px 0 10px; }
+
+.metric-card {
+    background: #ffffff; border-radius: 12px; padding: 14px 16px;
+    border: 1px solid #ececf1; box-shadow: 0 1px 2px rgba(20,20,31,0.04);
+    margin-bottom: 10px; height: 88px;
+}
+.label { font-size: 11px; font-weight: 500; color: #9a9aa5; margin-bottom: 5px; letter-spacing: 0.2px; }
+.value-main { font-size: 19px; font-weight: 700; color: #14141f; letter-spacing: -0.3px; }
+.value-sub { font-size: 11px; color: #b0b0ba; margin-top: 3px; }
+
+.step-box {
+    background: #fafafc; border: 1px solid #ececf1; border-radius: 10px;
+    padding: 12px 16px; margin-bottom: 8px; font-size: 13px; color: #45454f;
+}
+.step-box b { color: #14141f; font-weight: 600; }
+
+.action-green, .action-amber, .action-red, .action-gray {
+    border-radius: 10px; padding: 13px 16px; margin-bottom: 8px;
+    font-weight: 600; font-size: 13.5px; letter-spacing: -0.1px;
+}
+.action-green { background: #f0faf6; color: #16805a; border: 1px solid #cdeee0; }
+.action-amber { background: #fef8ec; color: #b8760a; border: 1px solid #f6e3b8; }
+.action-red   { background: #fdf2f2; color: #c23d3d; border: 1px solid #f5c9c9; }
+.action-gray  { background: #f7f7f9; color: #6b6b76; border: 1px solid #e6e6ec; }
+
+div[data-testid="stSelectbox"] label { font-size: 12px; font-weight: 500; color: #6b6b76; }
+hr { border-color: #ececf1 !important; margin: 24px 0 !important; }
 </style>
 """, unsafe_allow_html=True)
 
-st.title("RB / LB 인센티브 의사결정 대시보드")
-st.caption("Google Sheets 연동 | 도시 선택 시 6단계 로직에 따라 자동 판단")
+st.markdown('<div class="app-header">Rebalancing Dashboard</div>', unsafe_allow_html=True)
+st.markdown('<div class="app-sub">도시 선택 시 RB/LB 판단 로직을 단계별로 계산합니다</div>', unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════
@@ -226,7 +254,7 @@ st.markdown("---")
 # ══════════════════════════════════════════════════════
 # 6단계 판단 로직
 # ══════════════════════════════════════════════════════
-st.markdown("### 판단 흐름")
+st.markdown('<div class="section-label">판단 흐름</div>', unsafe_allow_html=True)
 
 def action_box(text, level="gray"):
     cls = {"green": "action-green", "amber": "action-amber", "red": "action-red", "gray": "action-gray"}[level]
@@ -295,7 +323,7 @@ st.markdown("---")
 # ══════════════════════════════════════════════════════
 # 최종 결론
 # ══════════════════════════════════════════════════════
-st.markdown("### 최종 Action")
+st.markdown('<div class="section-label">최종 Action</div>', unsafe_allow_html=True)
 colrb, collb = st.columns(2)
 with colrb:
     st.markdown("**RB**")
